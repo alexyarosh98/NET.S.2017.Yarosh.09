@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Books.Logs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Books
 {
-    public class Book : IComparable, IEquatable<Book>
+    public class Book : IComparable,IComparable<Book> ,IEquatable<Book>
     {
         public string Name { get; }
         public string Author { get; }
@@ -29,6 +30,7 @@ namespace Books
             Author = author;
             Price = price;
             NumberOfPages = numberOfPages;
+
         }
         /// <summary>
         /// object to string (overrided)
@@ -52,12 +54,18 @@ namespace Books
         /// <param name="book">Book to be compared to this object</param>
         /// <exception cref="ArgumentException">Null referece in argument or not Book object</exception>
         /// <returns></returns>
-        public int CompareTo(object book)
+         int IComparable.CompareTo(object book)
         {
             if (book == null || !(book is Book)) throw new ArgumentException($"{nameof(book)} is null or not a Book type object");
 
             Book newBook = (Book)book;
             return Name.ToString().Length.CompareTo(newBook.Name.ToString().Length);
+        }
+        public int CompareTo(Book book)
+        {
+            if (book == null) throw new ArgumentNullException($"{nameof(book)} must not be null");
+
+            return Name.ToString().Length.CompareTo(book.Name.ToString().Length);
         }
         /// <summary>
         /// Equals

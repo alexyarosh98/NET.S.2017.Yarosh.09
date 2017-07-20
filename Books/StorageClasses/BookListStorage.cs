@@ -15,7 +15,7 @@ namespace Books.StorageClasses
         /// Saving data to binary file
         /// </summary>
         /// <param name="books">Data to be saved</param>
-        public void SaveData(BookListService books)
+        public void SaveData(IEnumerable<Book> books)
         {
             using (BinaryWriter writer = new BinaryWriter(File.Open(FilePath, FileMode.Create)))
             {
@@ -26,21 +26,24 @@ namespace Books.StorageClasses
                     writer.Write(b.NumberOfPages);
                     writer.Write(b.Author);
                 }
-            }
+            } 
         }
         /// <summary>
         /// Loading data from binary file
         /// </summary>
         /// <exception cref="InvalidOperationException">FilePath is wrong</exception>
         /// <returns>before saved data from binary file</returns>
-        public BookListService LoadData()
+        public Book[] LoadData()
         {
             if (!File.Exists(FilePath)) throw new InvalidOperationException("Enter a correct filepath");
 
-            BookListService books = new BookListService();
+            int capacity = 10;
+            Book[] books = new Book[capacity];
+            int index = 0;
 
             using (BinaryReader reader = new BinaryReader(File.Open(FilePath, FileMode.Open)))
             {
+                
                 while (reader.PeekChar() > -1)
                 {
                     string name = reader.ReadString();
@@ -48,10 +51,14 @@ namespace Books.StorageClasses
                     int numberOfPages = reader.ReadInt32();
                     string author = reader.ReadString();
 
-                    books.AddBook(new Book(name, price, numberOfPages, author));
+                    if (index == capacity) Array.Resize(ref books, capacity *= 2);
+                    
+                    books[index] = new Book(name, price, numberOfPages, author);
+                    index++;
                 }
             }
 
+            Array.Resize(ref books, index);
             return books;
         }
     }

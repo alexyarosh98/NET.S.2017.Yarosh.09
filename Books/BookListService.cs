@@ -1,4 +1,5 @@
-﻿using Books.StorageClasses;
+﻿using Books.Logs;
+using Books.StorageClasses;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,10 +10,11 @@ using System.Threading.Tasks;
 namespace Books
 {
 
-    public class BookListService:IEnumerable<Book>
+    public class BookListService//:IEnumerable<Book>
     {
         private Book[] books;
         private int capacity = 10;
+        private  readonly ILogger logger;
         /// <summary>
         /// amount of elements in BookListService
         /// </summary>
@@ -22,11 +24,14 @@ namespace Books
         /// ctor
         /// </summary>
         /// <param name="comparer">Logic of comparing Book objects</param>
-        public BookListService(IEqualityComparer<Book> comparer=null)
+        public BookListService(IEqualityComparer<Book> comparer=null,ILogger logger=null)
         {
             books = new Book[capacity];
             if (comparer == null) this.comparer = EqualityComparer<Book>.Default;
             else this.comparer = comparer;
+
+            if (logger != null) this.logger = logger;
+            else this.logger = new NLogger();
         }
         /// <summary>
         /// ctor
@@ -34,7 +39,7 @@ namespace Books
         /// <param name="books">array of Book objects</param>
         /// <param name="comparer">logic of comparing Book objects</param>
         /// <exception cref="ArgumentNullException">First argument must not be null</exception>
-        public BookListService(IEnumerable<Book> books, IEqualityComparer<Book> comparer = null) : this(comparer)
+        public BookListService(IEnumerable<Book> books,ILogger logger=null ,IEqualityComparer<Book> comparer = null) : this(comparer,logger)
         {
             if (books == null)
                 throw new ArgumentNullException($"{nameof(books)} must not be null");
@@ -43,6 +48,7 @@ namespace Books
             {
                 AddBook(b);
             }
+            logger.Debug("Book list service successfully created");
         }
         /// <summary>
         /// Add elements to BooksListServide
@@ -63,6 +69,7 @@ namespace Books
                 Array.Resize(ref books, capacity);
             }
             books[Count++] = book;
+            logger.Debug($"Book {book.Name.ToString() } successfully added.");
         }
         /// <summary>
         /// Remove book from BookListServide
@@ -87,6 +94,7 @@ namespace Books
                 books[i] = books[i + 1];
             }
             Count--;
+            logger.Debug($"Book {book.Name.ToString() } successfully deleted.");
         }
         /// <summary>
         /// Findeing book by tag
@@ -113,7 +121,13 @@ namespace Books
             Array.Resize(ref books, Count);
             SortAlgorithms.MergeSort.Sort<Book>(books, comparer);
         }
+        public IEnumerable<Book> Show()
+        {
+            Book[] newBooks = new Book[this.Count];
+            Array.Copy(books, newBooks, Count);
 
+            return new List<Book>(newBooks);
+        }
       /// <summary>
       /// Saving data to binary file
       /// </summary>
@@ -123,7 +137,8 @@ namespace Books
         {
             if (storage == null) throw new ArgumentNullException($"{nameof(storage)} must not be null");
 
-            storage.SaveData(this);
+            storage.SaveData(books);
+            logger.Debug($"List of books successfully saved to storage");
         }
         /// <summary>
         /// loading data from binary file
@@ -131,20 +146,19 @@ namespace Books
         /// <param name="storage"></param>
         /// <exception cref="ArgumentNullException">Argument must not be null</exception>
         /// <returns>Before safed BookListServide</returns>
-        public BookListService LoadFromStorage(IBookListStorage storage)
+        public void LoadFromStorage(IBookListStorage storage)
         {
             if (storage == null) throw new ArgumentNullException($"{nameof(storage)} must not be null");
 
-            return storage.LoadData();
-        }
-        public IEnumerator<Book> GetEnumerator()
-        {
-            for (int i = 0; i < Count; i++)
+            capacity = 10;
+            Count = 0;
+            books = new Book[capacity];
+            foreach (Book bk in storage.LoadData())
             {
-                yield return books[i];
+                AddBook(bk);
             }
+            logger.Debug($"List of books successfully loaded from storage");
         }
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         private bool Contains(Book book)
         {
 
