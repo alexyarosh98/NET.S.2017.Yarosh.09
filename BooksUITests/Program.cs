@@ -94,6 +94,11 @@ namespace BooksUITests
             {
                 Console.WriteLine(b.ToString());
             }
+
+            Console.WriteLine(books.Count);
+            XmlFileStorage xmlFile = new XmlFileStorage() {FilePath = @"C:\Users\alexy\Desktop\XMLtext.xml"};
+            books.SaveToStorage(xmlFile);
+            books.LoadFromStorage(xmlFile);
             Console.ReadKey();
         }
       

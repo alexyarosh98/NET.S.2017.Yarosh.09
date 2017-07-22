@@ -136,7 +136,7 @@ namespace Books
         public void SaveToStorage(IBookListStorage storage)
         {
             if (storage == null) throw new ArgumentNullException($"{nameof(storage)} must not be null");
-
+            Array.Resize(ref books, Count);
             storage.SaveData(books);
             logger.Debug($"List of books successfully saved to storage");
         }
