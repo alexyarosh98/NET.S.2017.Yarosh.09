@@ -51,6 +51,7 @@
     <Compile Include="Logs\ILogger.cs" />
     <Compile Include="Logs\NLogger.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StorageClasses\BinarySerializationStorage.cs" />
     <Compile Include="StorageClasses\BookListStorage.cs" />
     <Compile Include="StorageClasses\IBookListStorage.cs" />
     <Compile Include="StorageClasses\XmlFileStorage.cs" />

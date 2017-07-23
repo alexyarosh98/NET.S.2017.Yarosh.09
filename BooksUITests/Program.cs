@@ -99,6 +99,13 @@ namespace BooksUITests
             XmlFileStorage xmlFile = new XmlFileStorage() {FilePath = @"C:\Users\alexy\Desktop\XMLtext.xml"};
             books.SaveToStorage(xmlFile);
             books.LoadFromStorage(xmlFile);
+
+            BinarySerializationStorage binarySerialization=new BinarySerializationStorage()
+                { FilePath =@"C:\Users\alexy\Desktop\BSerializationtext.dat"};
+            books.SaveToStorage(binarySerialization);
+            books.LoadFromStorage(binarySerialization);
+
+
             Console.ReadKey();
         }
       

@@ -10,6 +10,7 @@ namespace Books.StorageClasses
 /// </summary>
     public interface IBookListStorage
     {
+        string FilePath { get; set; }
         void SaveData(IEnumerable<Book> books);
         Book[] LoadData();
     }
